@@ -25,13 +25,13 @@ main:
     
     # initialise primes array
     la	    $t0,primes              # $s1 = address of the first element in the array
-    move    $t1,$v0
+    add    $t1,$0,$v0
     li 	    $t2,0
     li	    $t3,1
 init_loop:
     sb	    $t3, ($t0)              # primes[i] = 1
-    addi    $t0, $t0, 1             # increment pointer
-    addi    $t2, $t2, 1             # increment counter
+    add    $t0, $t0, 1             # increment pointer
+    add    $t2, $t2, 1             # increment counter
     ble	    $t2, $t1, init_loop     # loop if counter != input value
     
     ### Sieve of Eratosthenes ###
@@ -40,7 +40,7 @@ sieve_loop:
    add $t3, $t3, 1
    mul $t2, $t3, $t3
       
-   move $t4, $t2
+   add $t4, $0, $t2
    inner_loop:
    la $t0, primes
    add $t0, $t0, $t4
@@ -70,7 +70,7 @@ sieve_loop:
     
 print_number:
     li $v0, 1
-    move $a0, $t2
+    add $a0, $0, $t2
     syscall
     li $v0, 4
     la $a0, space       
