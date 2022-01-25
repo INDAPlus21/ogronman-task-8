@@ -1,52 +1,48 @@
 .data
- newline: .asciiz "\n"
-.text
 
-.data
 
+     newline: .asciiz "\n"
      text1:  .asciiz "Enter the first number in the multiplication: "
-
-.text
-
-
-.data
-
      text2:  .asciiz "Enter the second number in the multiplication: "
 
 .text
 
-.macro multiply(%regVal, %a,%b,%saveValue)
-	move %regVal, $0
+## Should I do it like this or like not use macros
+## Not very knowledgeable about MIPS lingo so I do not know how to wrap things in global routines :(
+## Feels like alot can go wrong if I just use temporary values inside the macro, but I guess that is what they are made for
+
+.macro multiply(%a,%b)
+	move $t0, $0
 	Loop:
-	add %regVal, %regVal, 1
-	add %saveValue, %saveValue, %b
-	blt %regVal, %a, Loop
+	add $t0, $t0, 1
+	add $s0, $t2, %b
+	blt $t0, %a, Loop
 .end_macro
 
-.macro faculty(%regVal1, %regVal2,%n,%saveValue)
-	li  %regVal2, 1	#Start faculty
+.macro faculty(%n)
+	li  $t1, 1	#Start faculty
 	Loop:
-	li %saveValue, 0
-	multiply(%regVal1, %n,  %regVal2, %saveValue)
-	li %regVal2, 0
-	move %regVal2, %saveValue
+	li $s0, 0
+	multiply(%n,  $t1)
+	li $t1, 0
+	move $t1, $t2
 	sub %n, %n, 1
 	bgt %n, 1, Loop
 	
+	move %n, $t2
 .end_macro
 
-     e
+     
 main:
-    
-    move $t1, $0
-    move $t2, $0
+
+    move $t3, $0
     
     jal printStartText
     
-    multiply($t0,$t1,$t2,$s0)
+    #multiply($t0,$t1,$t2,$s0)
    
     
-    faculty($t0, $t1, $t2, $s1)
+    faculty($t2)
     
     jal printResults
     
@@ -97,14 +93,14 @@ printInput:
 printResults:
     # Printing out the multiplication
     li $v0, 1
-    move $a0, $s0
+    move $a0, $t2
     syscall
     li $v0, 4       # you can call it your way as well with addi 
     la $a0, newline       # load address of the string	
     syscall
     
     li $v0, 1
-    move $a0, $s1
+    move $a0, $t2
     syscall
     jr $ra
 
