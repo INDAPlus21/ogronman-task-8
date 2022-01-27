@@ -109,17 +109,17 @@ faculty:
     	jal multiplication
     	move $t0, $v0
     	sub $t1, $t1, 1
-    	bne $t1, 1, facLoop
-    	POP($ra)
-    	jr $ra
+    bne $t1, 1, facLoop
+    POP($ra)
+    jr $ra
     	
     
 multiplication:
     move $t2, $0 #counter
     move $t3, $0  #sum
     mulLoop:
-    add $t2, $t2, 1
-    add $t3, $t3, $a1
+    	add $t2, $t2, 1
+    	add $t3, $t3, $a1
     bne $t2, $a0, mulLoop
     move $v0, $t3
     jr $ra
