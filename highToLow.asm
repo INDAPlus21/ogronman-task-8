@@ -1,3 +1,14 @@
+
+.macro	PUSH (%reg)
+	addi	$sp,$sp,-4              # decrement stack pointer (stack builds "downwards" in memory)
+	sw	    %reg,0($sp)             # save value to stack
+.end_macro
+
+.macro	POP (%reg)
+	lw	    %reg,0($sp)             # load value from stack to given registry
+	addi	$sp,$sp,4               # increment stack pointer (stack builds "downwards" in memory)
+.end_macro
+
 .data
 
 
@@ -7,31 +18,8 @@
 
 .text
 
-## Should I do it like this or like not use macros
-## Not very knowledgeable about MIPS lingo so I do not know how to wrap things in global routines :(
-## Feels like alot can go wrong if I just use temporary values inside the macro, but I guess that is what they are made for
-
-.macro multiply(%a,%b)
-	move $t0, $0
-	Loop:
-	add $t0, $t0, 1
-	add $s0, $t2, %b
-	blt $t0, %a, Loop
-.end_macro
-
-.macro faculty(%n)
-	li  $t1, 1	#Start faculty
-	Loop:
-	li $s0, 0
-	multiply(%n,  $t1)
-	li $t1, 0
-	move $t1, $t2
-	sub %n, %n, 1
-	bgt %n, 1, Loop
-	
-	move %n, $t2
-.end_macro
-
+.globl multiplication
+.globl faculty
      
 main:
 
@@ -40,9 +28,16 @@ main:
     jal printStartText
     
     #multiply($t0,$t1,$t2,$s0)
-   
     
-    faculty($t2)
+   
+    move $a0, $t1
+    move $a1, $t1
+    
+    jal multiplication
+    move $s1, $v0
+    
+    jal faculty 
+    move $s0, $v0
     
     jal printResults
     
@@ -93,15 +88,38 @@ printInput:
 printResults:
     # Printing out the multiplication
     li $v0, 1
-    move $a0, $t2
+    move $a0, $s1
     syscall
     li $v0, 4       # you can call it your way as well with addi 
     la $a0, newline       # load address of the string	
     syscall
     
     li $v0, 1
-    move $a0, $t2
+    move $a0, $s0
     syscall
     jr $ra
-
-	
+    
+faculty:
+    PUSH($ra)
+    li $t0, 1
+    move $t1, $a0
+    facLoop:
+    	move $a0, $t1
+    	move $a1, $t0
+    	jal multiplication
+    	move $t0, $v0
+    	sub $t1, $t1, 1
+    	bne $t1, 1, facLoop
+    	POP($ra)
+    	jr $ra
+    	
+    
+multiplication:
+    move $t2, $0 #counter
+    move $t3, $0  #sum
+    mulLoop:
+    add $t2, $t2, 1
+    add $t3, $t3, $a1
+    bne $t2, $a0, mulLoop
+    move $v0, $t3
+    jr $ra
